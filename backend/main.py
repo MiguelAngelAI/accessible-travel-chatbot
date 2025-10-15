@@ -28,18 +28,18 @@ client = None
 
 try:
     import openai
-    from openai import OpenAI
 
     if OPENAI_API_KEY:
+        # Configuración global de la API key (sin usar Client ni OpenAI())
         openai.api_key = OPENAI_API_KEY
-        client = OpenAI()
-        print("✅ OpenAI client initialized successfully.")
+        client = openai
+        print("✅ OpenAI SDK initialized via global API key (safe mode).")
     else:
-        print("⚠️  No OPENAI_API_KEY found. Please set it in .env.")
+        print("⚠️ No OPENAI_API_KEY found. Please set it in .env.")
 
 except Exception as e:
     client = None
-    print("❌ OpenAI SDK not initialized:", e)
+    print(f"❌ OpenAI SDK initialization failed: {type(e).__name__} — {e}")
 
 # =========================================================
 # 🚀 CONFIGURACIÓN DE FASTAPI
@@ -146,12 +146,12 @@ async def chat_get(request: Request, message: str):
         model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
         try:
-            stream = client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                temperature=0.2,
-                stream=True,
-            )
+            stream = openai.chat.completions.create(
+    model=model_name,
+    messages=messages,
+    temperature=0.2,
+    stream=True,
+)
 
             assistant_text_chunks: List[str] = []
             for chunk in stream:
