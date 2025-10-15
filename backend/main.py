@@ -53,7 +53,7 @@ CONVERSATIONS: Dict[str, List[Dict[str, str]]] = {}
 def startup_event():
     """Carga el PDF al iniciar el servidor."""
     global PDF_CONTEXT
-    pdf_path = os.getenv("PDF_PATH", "Accessible_Travel_Guide_Partial.pdf")
+    pdf_path = os.getenv("PDF_PATH", "Accessible_Travel.pdf")
     try:
         PDF_CONTEXT = load_pdf_text(pdf_path)
         print(f"📘 PDF loaded successfully ({len(PDF_CONTEXT)} chars).")
