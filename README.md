@@ -9,7 +9,7 @@ It includes a complete FastAPI backend, a React + Tailwind frontend, and integra
 ## 🚀 Project Overview
 
 The chatbot is designed to assist users with **accessibility-related travel information**, powered by a contextual PDF knowledge base.  
-It reads and indexes a provided PDF file (`Accessible_Travel_Guide_Partial.pdf`) and uses the OpenAI API to generate relevant, helpful answers.
+It reads and indexes a provided PDF file (`Accessible_Travel.pdf`) and uses the OpenAI API to generate relevant, helpful answers.
 
 ---
 
@@ -228,7 +228,7 @@ VITE_USE_MOCK=false   #Live mode with api key, true for mock mode
 
 ## 🧾 Credits
 
-Developed by **Miguel Ángel Monturiol Castillo**  
+Developed by **Miguel Angel Monturiol Castillo**  
 AI Engineer & Full-Stack Developer  
 📍 San Francisco, Heredia, Costa Rica
 

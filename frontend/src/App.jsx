@@ -73,29 +73,41 @@ export default function App() {
       };
 
       evtSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+  try {
+    const trimmed = event.data?.trim();
+    if (!trimmed) return;
 
-        if (data.type === "content") {
-          if (!firstTokenReceived) {
-            setIsTyping(false);
-            firstTokenReceived = true;
-          }
-          // Agregar caracteres nuevos al buffer y procesar progresivamente
-          buffer.push(...data.content.split(""));
-          if (buffer.length === data.content.length) {
-            processBuffer();
-          }
-        } else if (data.type === "done") {
-          evtSource.close();
-        } else if (data.type === "error") {
-          setIsTyping(false);
-          evtSource.close();
-          setMessages((prev) => [
-            ...prev,
-            { sender: "assistant", text: `⚠️ Error: ${data.message}` },
-          ]);
-        }
-      };
+    const data = JSON.parse(trimmed);
+
+    if (data.type === "content") {
+      if (!firstTokenReceived) {
+        setIsTyping(false);
+        firstTokenReceived = true;
+      }
+
+      buffer.push(...data.content.split(""));
+      if (buffer.length === data.content.length) {
+        processBuffer();
+      }
+    } else if (data.type === "done") {
+      evtSource.close();
+    } else if (data.type === "error") {
+      setIsTyping(false);
+      evtSource.close();
+      setMessages((prev) => [
+        ...prev,
+        { sender: "assistant", text: `⚠️ Error: ${data.message}` },
+      ]);
+    }
+  } catch (e) {
+    setIsTyping(false);
+    evtSource.close();
+    setMessages((prev) => [
+      ...prev,
+      { sender: "assistant", text: "⚠️ Error parsing server response." },
+    ]);
+  }
+};
 
       evtSource.onerror = () => {
         setIsTyping(false);
