@@ -1,188 +1,235 @@
-# 🌍 Accessible Travel Chatbot
 
-An intelligent PDF-powered chatbot that provides accessibility-related information based on uploaded travel guides.  
-Built with **FastAPI**, **React + Vite**, and **OpenAI GPT-4o-mini**, this project demonstrates a full-stack AI integration with real-time streaming responses.
+# 🧠 Accessible Travel Chatbot — Full Assessment Solution
 
----
-
-## 🧠 Overview
-
-This chatbot reads context directly from a travel guide PDF (included in the repo) and answers user questions in natural language, referencing relevant pages when needed.
-
-Features:
-- 🔗 **Full-stack AI pipeline** (FastAPI + React + OpenAI)
-- 📘 **Context-aware answers** grounded in a PDF
-- ⚡ **Live streaming** responses via Server-Sent Events (SSE)
-- 🧱 **Mock/offline mode** for development without API calls
-- 💬 **ChatGPT-style interface** with smooth animations
-- ✨ **Auto-scroll, message memory, and welcome message**
-- 🎨 **Glass-effect UI** with animated gradient background
+This repository contains the **final implementation** of the Accessible Travel Chatbot project, developed as part of a technical assessment.  
+It includes a complete FastAPI backend, a React + Tailwind frontend, and integrated AI streaming responses via the OpenAI API.
 
 ---
 
-## 🏗️ Project Structure
+## 🚀 Project Overview
 
+The chatbot is designed to assist users with **accessibility-related travel information**, powered by a contextual PDF knowledge base.  
+It reads and indexes a provided PDF file (`Accessible_Travel_Guide_Partial.pdf`) and uses the OpenAI API to generate relevant, helpful answers.
+
+---
+
+## 🧩 Architecture
+
+### 🔹 Backend (FastAPI)
+- **Language:** Python 3.12+
+- **Framework:** FastAPI
+- **Features:**
+  - Loads and parses PDF context at startup.
+  - Handles chat requests via **Server-Sent Events (SSE)**.
+  - Manages multi-conversation state **in memory** (no database).
+  - Graceful error handling and environment configuration via `.env`.
+  - Rate limiting to avoid API overload.
+
+**Key files:**
 ```
-Chatbot/
-├── backend/
-│   ├── main.py                 # FastAPI backend (OpenAI + PDF logic)
-│   ├── utils/pdf_loader.py     # Loads and parses the PDF
-│   ├── requirements.txt        # Backend dependencies
-│   ├── .env                    # API key + model configuration
-│   └── Accessible_Travel_Guide_Partial.pdf
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx             # Main React component
-│   │   ├── components/
-│   │   │   ├── Chat.jsx
-│   │   │   ├── MessageBubble.jsx
-│   │   │   └── TypingIndicator.jsx
-│   │   └── index.css
-│   ├── package.json
-│   ├── vite.config.js
-│   └── .env                    # Frontend mode toggle (mock/live)
-│
-└── README.md                   # (this file)
+backend/
+├── main.py                  # FastAPI server (SSE, multi-chat, PDF context)
+├── utils/pdf_loader.py      # PDF reader using PyPDF2
+├── .env                     # Contains your OpenAI API key and PDF path
+├── requirements.txt          # Full dependency list
+```
+
+### 🔹 Frontend (React + Vite + TailwindCSS)
+- **Framework:** React 18
+- **Styling:** TailwindCSS + Framer Motion + Lucide Icons
+- **Features:**
+  - Clean modern UI (responsive, minimalistic, accessible).
+  - **Mock/offline mode** for local testing without API key.
+  - **Streaming real-time AI responses** (SSE integration).
+  - **ChatGPT-style typing indicator** while thinking.
+  - **Letter-by-letter response effect** when generating text.
+  - Multi-conversation selector with in-memory cache.
+  - Built-in rate limiting for request safety.
+
+**Key files:**
+```
+frontend/
+├── src/App.jsx               # Main component (multi-chat + SSE streaming)
+├── src/components/Chat.jsx   # Chat window and input bar
+├── src/components/MessageBubble.jsx
+├── src/components/TypingIndicator.jsx
+├── src/main.jsx              # React entry point
+├── src/index.css             # TailwindCSS styles
 ```
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the Repository
+### Clone the Repository
 ```bash
 git clone https://github.com/<your-username>/accessible-travel-chatbot.git
 cd accessible-travel-chatbot
 ```
 
----
-
-### 2️⃣ Backend Setup
-
-#### Create a virtual environment and install dependencies:
+### 🔧 Backend
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate    # On Windows
+.venv\Scripts\activate      # (Windows)
 pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
 
-#### Create your `.env` file:
-```env
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-OPENAI_MODEL=gpt-4o-mini
-PDF_PATH=Accessible_Travel_Guide_Partial.pdf
-```
-
-#### Run the backend:
+### 💻 Frontend
 ```bash
-python -m uvicorn main:app --reload --port 8000
-```
-
-If everything is working, you should see:
-```
-✅ OpenAI client initialized successfully.
-📘 PDF loaded successfully (3908 chars).
-```
-
----
-
-### 3️⃣ Frontend Setup
-
-#### Install dependencies:
-```bash
-cd ../frontend
+cd frontend
 npm install
-```
-
-#### Configure `.env`:
-```env
-VITE_USE_MOCK=false
-```
-
-#### Run the development server:
-```bash
 npm run dev
 ```
 
-Visit 👉 **http://localhost:5173**
+### 🌐 Access the app
+Visit: **http://localhost:5173**
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file inside `backend/` with the following content:
+
+```
+OPENAI_API_KEY=your_openai_api_key_here
+PDF_PATH=Accessible_Travel_Guide_Partial.pdf
+OPENAI_MODEL=gpt-4o-mini
+```
+Create a `.env` file inside `frontend/` with the following content:
+
+```
+VITE_USE_MOCK=false
+```
 
 ---
 
 ## 💬 Chat Logic
 
-By default, the app supports a **mock/offline mode** for development and testing,  
-which simulates AI responses without calling the backend.  
-In production, the chatbot connects to the FastAPI backend and streams **real AI responses** from the OpenAI API.
+The chatbot runs in **mock/offline mode** by default (for development).  
+When a valid API key is provided and the backend is running, it switches automatically to **real-time streaming mode**.
 
-Frontend uses:
-```js
-const evtSource = new EventSource("http://127.0.0.1:8000/chat?message=" + encodeURIComponent(message));
+### Streaming Implementation
+- Uses `EventSource` to handle real-time chunks from FastAPI.
+- Responses appear letter-by-letter for a natural typing effect.
+- A typing indicator shows while the bot is "thinking".
+
+---
+
+## 🧠 Features Summary
+
+| Feature | Description |
+|----------|--------------|
+| **PDF Context Loader** | Loads and parses a travel accessibility guide PDF for contextual responses |
+| **FastAPI + SSE** | Real-time streaming of AI responses via Server-Sent Events |
+| **React Frontend** | Clean, responsive interface with TailwindCSS |
+| **Typing Indicator** | Appears only when model is “thinking” before generation |
+| **Letter-by-letter streaming** | Real-time progressive response output |
+| **Multi-conversation** | Supports multiple chat sessions with memory cache |
+| **Rate Limiting** | Prevents spam requests (<3s cooldown) |
+| **In-memory cache** | Stores conversations without a database |
+| **Error handling** | Catches invalid keys or empty PDF gracefully |
+| **Offline mode** | Simulates AI responses without backend connection |
+
+---
+
+## ⚙️ Requirements
+
+```
+fastapi==0.115.0
+uvicorn==0.30.6
+openai==1.51.2
+python-dotenv==1.0.1
+PyPDF2==3.0.1
+python-multipart==0.0.9
+pydantic==2.9.2
+starlette==0.38.6
+anyio==4.9.0
+```
+
+Install all backend dependencies with:
+```bash
+pip install -r backend/requirements.txt
 ```
 
 ---
 
-## 🧩 Technologies Used
+## 💡 Design Decisions
 
-| Layer | Stack |
-|-------|--------|
-| Frontend | React + Vite + TailwindCSS + Framer Motion |
-| Backend | FastAPI + OpenAI SDK + PyPDF2 |
-| Streaming | Server-Sent Events (SSE) |
-| Model | GPT-4o-mini (configurable) |
-| UI | Glassmorphism + Animated Gradients |
-
----
-
-## 🧱 Key Features
-
-| Feature | Description |
-|----------|-------------|
-| 📘 **PDF context** | Reads and embeds accessibility info from the provided guide |
-| ⚡ **Live streaming** | Uses SSE for real-time response updates |
-| 🧩 **Modular code** | Clear separation between frontend, backend, and utils |
-| 💬 **Memory** | Stores conversation context across messages |
-| 🧠 **Mock mode** | Optional local testing without OpenAI API |
-| 🎨 **Clean UI** | ChatGPT-inspired with blur, gradient, and smooth animations |
+| Decision | Reason |
+|-----------|--------|
+| **FastAPI + SSE** | Efficient async streaming and simple integration |
+| **No database** | Keeps architecture lightweight and compliant with assessment |
+| **React + Tailwind** | Rapid UI development, accessible styling |
+| **Streaming effect** | Improves UX realism and perceived intelligence |
+| **Multi-conversation cache** | Demonstrates structured state management |
+| **Env-based config** | Secure API key management and flexible PDF loading |
 
 ---
 
-## 🧾 Example Interaction
+## 🧪 Testing
 
-**User:**  
-> What accessibility regulations exist in Canada?
+### Backend health check
+```bash
+curl http://127.0.0.1:8000/health
+```
+Expected output:
+```json
+{"ok": true, "pdf_loaded": true, "pdf_chars": 3908}
+```
 
-**Bot:**  
-> In Canada, the Accessible Canada Act (ACA) of 2019 promotes barrier-free access in federally regulated sectors. Additionally, provincial laws such as Ontario’s Accessibility for Ontarians with Disabilities Act (AODA) go further in requiring accessible business practices. See Page 8 of the PDF.
-
----
-
-## 🧑‍💻 Developer Notes
-
-- SSE connection is automatically re-established if interrupted.  
-- PDF context is truncated to 180 000 chars for token safety.  
-- The project avoids over-engineering, focusing on clarity and real functionality.
-
----
-
-## 📦 Deployment
-
-To deploy on any platform (Render, Railway, etc.):
-
-1. Set environment variables (`OPENAI_API_KEY`, `OPENAI_MODEL`, `PDF_PATH`).  
-2. Serve the built frontend with:
-   ```bash
-   npm run build
-   ```
-3. Run FastAPI backend behind a process manager:
-   ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8000
-   ```
+### Chat test (PowerShell)
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:8000/chat" -Method POST -Body '{"message":"What is accessibility?"}' -ContentType "application/json"
+```
 
 ---
 
-## 🧭 License
+## ⚙️ Recent Improvements
 
-MIT License © 2025 Miguel Ángel Monturiol Castillo  
-For educational and demonstration purposes.
+### 💬 Real-Time Streaming & Typing Indicator
+- **ChatGPT-style** streaming responses (letter-by-letter).  
+- **Smart typing indicator** only appears while the model “thinks”.  
+- Fully compatible with the FastAPI SSE backend.
+
+### 🧠 In-Memory Multi-Conversation Cache
+- Each conversation retains its message history **in memory**.  
+- Switching between chats restores previous messages instantly.  
+- No external storage or database used.
+
+### 🧩 Backend Stability
+- Better SSE handling and error recovery.  
+- Graceful handling of invalid or missing API keys.
+
+---
+
+## 📘 Example `.env.example`
+
+```bash
+# Backend
+OPENAI_API_KEY=sk-yourkeyhere
+PDF_PATH=Accessible_Travel_Guide_Partial.pdf
+OPENAI_MODEL=gpt-4o-mini
+
+# Frontend 
+VITE_USE_MOCK=false   #Live mode with api key, true for mock mode
+```
+
+---
+
+## 🌟 Future Improvements
+
+- Support for multiple PDFs or knowledge sources.
+- Add persistent localStorage saving (optional).
+- Implement message rating or export feature.
+
+---
+
+## 🧾 Credits
+
+Developed by **Miguel Ángel Monturiol Castillo**  
+AI Engineer & Full-Stack Developer  
+📍 San Francisco, Heredia, Costa Rica
+
+---
