@@ -100,7 +100,7 @@ OPENAI_MODEL=gpt-4o-mini
 Create a `.env` file inside `frontend/` with the following content:
 
 ```
-VITE_USE_MOCK=false
+VITE_USE_MOCK=true
 ```
 
 ---
